@@ -25,18 +25,37 @@ const OUT = join(__dirname, '..', 'public', 'data');
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 const SF_BBOX = '37.7081,-122.5155,37.8124,-122.3531';
 
-async function overpassQuery(ql) {
-  const res = await fetch(OVERPASS_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json',
-      'User-Agent': 'sf-sunset-finder/1.0 (data prefetch script)',
-    },
-    body: `data=${encodeURIComponent(ql)}`,
-  });
-  if (!res.ok) throw new Error(`Overpass HTTP ${res.status}: ${await res.text()}`);
-  return res.json();
+/**
+ * Runs an Overpass QL query with up to 3 attempts and exponential backoff.
+ * 429 (rate-limited) and 5xx (server errors, including the common 504 timeout)
+ * are treated as retryable — anything else throws immediately.
+ */
+async function overpassQuery(ql, maxAttempts = 3) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const res = await fetch(OVERPASS_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+        'User-Agent': 'sf-sunset-finder/1.0 (data prefetch script)',
+      },
+      body: `data=${encodeURIComponent(ql)}`,
+    });
+
+    if (res.ok) return res.json();
+
+    const body = await res.text();
+    const retryable = res.status === 429 || res.status >= 500;
+
+    if (retryable && attempt < maxAttempts) {
+      const waitSec = attempt * 20; // 20 s, then 40 s
+      console.warn(`\n  Overpass ${res.status} — retrying in ${waitSec}s (attempt ${attempt}/${maxAttempts})...`);
+      await new Promise(r => setTimeout(r, waitSec * 1000));
+      continue;
+    }
+
+    throw new Error(`Overpass HTTP ${res.status}: ${body}`);
+  }
 }
 
 function parseVenue(el, type) {
