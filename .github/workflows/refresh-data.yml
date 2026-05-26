@@ -2,8 +2,8 @@ name: Refresh venue data
 
 on:
   schedule:
-    # 6 AM UTC = 10 PM PT — off-peak for Overpass API
-    - cron: '0 6 * * *'
+    - cron: '0 6  * * *'   # 6 AM  UTC = 10 PM PT
+    - cron: '0 18 * * *'   # 6 PM  UTC = 10 AM PT
   workflow_dispatch: # allow manual trigger from GitHub Actions UI
 
 permissions:
