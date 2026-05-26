@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- CSP: restrict scripts/connections to known origins; add stronger directives
+         (frame-ancestors, HSTS) via server headers when deploying to Vercel/Netlify. -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'none';
+      script-src 'self' blob:;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob: https://*.mapbox.com https://cdn.star.nesdis.noaa.gov;
+      connect-src 'self' https://*.mapbox.com https://events.mapbox.com https://overpass-api.de https://api.open-meteo.com;
+      worker-src blob:;
+      font-src 'self' https://*.mapbox.com data:;
+      base-uri 'self';
+      form-action 'none';
+    " />
+    <title>Sun Scout SF</title>
+    <link rel="preconnect" href="https://api.mapbox.com" />
+    <link rel="preconnect" href="https://events.mapbox.com" />
+    <link rel="dns-prefetch" href="https://a.tiles.mapbox.com" />
+    <link rel="dns-prefetch" href="https://b.tiles.mapbox.com" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌅</text></svg>" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

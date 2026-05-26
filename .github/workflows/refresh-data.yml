@@ -1,0 +1,36 @@
+name: Refresh venue data
+
+on:
+  schedule:
+    # 6 AM UTC = 10 PM PT — off-peak for Overpass API
+    - cron: '0 6 * * *'
+  workflow_dispatch: # allow manual trigger from GitHub Actions UI
+
+permissions:
+  contents: write   # needed to commit and push updated JSON
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch fresh venue and building data
+        run: npm run fetch-data
+
+      - name: Commit if data changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f public/data/venues.json public/data/buildings.json
+          git diff --staged --quiet && echo "No changes, skipping commit" || (
+            git commit -m "chore: refresh venue and building data [skip ci]" &&
+            git push
+          )
