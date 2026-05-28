@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write   # needed to commit and push updated JSON
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # silence Node 20 deprecation warnings
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
