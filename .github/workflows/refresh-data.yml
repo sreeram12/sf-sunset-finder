@@ -26,9 +26,12 @@ jobs:
         run: npm run fetch-data
 
       - name: Commit if data changed
+        env:
+          GH_PAT: ${{ secrets.GH_PAT_RUN_WORKFLOWS }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/sreeram12/sf-sunset-finder.git
           git add -f public/data/venues.json public/data/buildings.json
           git diff --staged --quiet && echo "No changes, skipping commit" || (
             git commit -m "chore: refresh venue and building data [skip ci]" &&
