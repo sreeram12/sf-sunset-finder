@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT_RUN_WORKFLOWS }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
